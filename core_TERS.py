@@ -24,7 +24,6 @@ class TERS:
                                    'distance': 0}
         self.data_ori = self.data_cal = self.spefile_cal = self.spefile_ori = None
         self.set_props_from_default(force=False)
-        # self.set(color=self.get_color(settings))
 
         self._read(file_cal, file_ori, **kargs)
 
@@ -68,7 +67,6 @@ class TERS:
         if file_cal and file_cal.split('.')[-1] == 'SPE':
             self.spefile_cal = MySpeFile(file_cal)
 
-        '''这个`[0]`将来要改掉'''
         if file_ori and file_ori[0].split('.')[-1] == 'SPE':
             self.spefile_ori = MySpeFile(file_ori[0])
 

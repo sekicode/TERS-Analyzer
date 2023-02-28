@@ -10,22 +10,6 @@ class TERS_IO():
     def __init__(self) -> None:
         pass
 
-    # def ask_for_savefile(self):
-    #     try:
-    #         files = tkinter.filedialog.asksaveasfile(defaultextension=".csv",
-    #                                                  filetypes=(("CSV file", "*.csv"), ("All Files", "*.*")))
-    #         if files == '':
-    #             return None
-    #     except Exception as ex:
-    #         error_message_box(ex, 'Getting file names')
-    #     except:
-    #         error_message_box(method='Getting file names')
-    #     else:
-    #         return files
-
-    # def ask_for_savefilefolder(self):
-    #     return tkinter.filedialog.askdirectory()
-
     def export_file(self, data, default_prefix=None, filepath=None):
         if data is None:
             return None

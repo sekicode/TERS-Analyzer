@@ -125,12 +125,6 @@ class Application(Frame):
                                state=DISABLED,
                                text='Interpolate Wavenumber', command=self.click_interpolate_wavenumber)
 
-        self.alertButton27 = Button(self,
-                                    width=self.width_button,
-                                    height=self.height_button,
-                                    state=DISABLED,
-                                    text='Interpolate Spectra', command=self.click_interpolate_spectra)
-
         self.Button26 = Button(self,
                                width=self.width_button,
                                height=self.height_button,
@@ -208,12 +202,6 @@ class Application(Frame):
                                state=DISABLED,
                                text='Batch Convert and Export', command=self.click_batch_convert)
 
-        # self.Button43 = Button(self,
-        #                        width=self.width_button,
-        #                        height=self.height_button,
-        #                        text='Batch Merge and Export',
-        #                        command=self.click_merge_to_single)
-
         self.Button51 = Button(self,
                                width=self.width_button,
                                height=self.height_button,
@@ -244,20 +232,12 @@ class Application(Frame):
 
         self.buttons_disabled = [self.Button26, self.Button27, self.Button29, self.Button14,
                                  self.Button15, self.Button21, self.Button31, self.Button22,
-                                 self.Button32, self.Button34, self.alertButton27, self.Button36,
+                                 self.Button32, self.Button34, self.Button36,
                                  self.Button33, self.Button41, self.Button23, self.Button24,
                                  self.Button52, self.Button53, self.Button35,
                                  self.Button25, self.Button29, self.Button210, self.Button28, ]
 
     def _make_grid(self):
-        # self.grid_pattern = [[self.label1, self.Button11, self.Button12, self.Button13, self.Button14, self.Button15, ],
-        #                      [self.label2, self.Button21, self.Button22, self.Button23, self.Button24, self.Button25,
-        #                          self.Button26, self.Button27, self.Button28, self.Button29, self.Button210, ],
-        #                      [self.label3, self.Button31, self.Button32, self.Button33,
-        #                          self.Button34, self.Button35, self.Button36, ],
-        #                      [self.label4, self.Button41, self.Button42, ],
-        #                      [self.label5, self.Button51, self.Button52, self.Button53, self.Button54, ], ]
-
         self.grid_pattern = [[self.label1, self.Button11, self.Button12, self.Button13, self.Button14, self.Button15, self.Button41, self.Button42, ],
                              [self.label2, self.Button21, self.Button22, self.Button23, self.Button24, self.Button25,
                                  self.Button26, self.Button27, self.Button28, self.Button29, self.Button210, ],
@@ -277,21 +257,6 @@ class Application(Frame):
                 obj['font'] = self.myFont_button
             elif isinstance(obj, Label):
                 obj['font'] = self.myFont_label
-
-    def _resize_by_tab(self, window):
-        current_tab = self.tab.index(self.tab.select())
-        resolution = ''
-        if current_tab == 0:
-            resolution = '250x300'
-        elif current_tab == 1:
-            resolution = '250x400'
-        elif current_tab == 2:
-            resolution = '250x350'
-        elif current_tab == 3:
-            resolution = '250x150'
-        elif current_tab == 4:
-            resolution = '250x300'
-        self.master.geometry(resolution)
 
     def _adjust_grid_spacing(self):
         col_count, row_count = self.grid_size()
@@ -321,33 +286,6 @@ class Application(Frame):
         try:
             if file.split('.')[-1] == 'SPE':
                 raise TypeError("Cannot read SPE file as a calibration")
-                laser_wavelength = 0
-                for attempt in range(10):
-                    laser_wavelength = tkinter.simpledialog.askfloat(
-                        "Messagebox", "Laser center wavelength (nm)?")
-                    if laser_wavelength is None:
-                        return None
-                    elif laser_wavelength <= 0:
-                        messagebox.showinfo(
-                            "Error", "Please enter a positive integer")
-                    else:
-                        break
-                METHOD = {1: 'linear', 2: 'quadratic', 3: 'cubic'}
-                # for i in range(10):
-                #     temp = tkinter.simpledialog.askinteger(
-                #         "Messagebox", "Choose a fitting method\nLinear:1\nQuadratic:2\nCubic:3")
-                #     if temp is None:
-                #         temp = 2  # Default
-                #     elif temp >= 1 and temp <= 3:
-                #         break
-                #     else:
-                #         messagebox.showinfo(
-                #             "Error", "Please enter an integer between 1 and 3")
-                temp = 2
-                method = METHOD[temp]
-
-                self.laser_wavelength = laser_wavelength
-                self.method = method
         except FileNotFoundError:
             messagebox.showinfo("Error", "Where is the file?")
         except:
@@ -424,19 +362,6 @@ class Application(Frame):
         self.after_calibrate()
 
     def after_calibrate(self):
-        # try:
-        #     self.ters.set(pixel_x=1)
-        #     self.ters.set(distance=1)
-        #     if len(self.ters) != 1:
-        #         self.ters.set(pixel_x=self.change_pixel_x())
-        #         self.ters.set(
-        #             distance=self.ask.positive_float("Distance (nm)?"))
-        # except Exception as err:
-        #     CustomError(err).debug()
-
-        # if messagebox.askyesno("Messagebox", "Subtract baseline?"):
-        #     self.ters.math.baseline_sub()
-
         self.ters.set(pixel_x=1)
         self.ters.set(distance=0)
 
@@ -484,20 +409,6 @@ class Application(Frame):
 
     @MyWrapper.safe
     def click_plot_spec(self):
-        # lens = len(self.ters)
-        # for attempt in range(10):
-        #     temp = 1
-        #     if lens > 1:
-        #         temp = tkinter.simpledialog.askinteger(
-        #             "Messagebox", "Which spectrum do you want to plot?\nRange from 1 to {}".format(lens))
-        #         if temp is None:
-        #             temp = 1
-        #     index_spec = temp - 1
-        #     if 0 <= index_spec < lens:
-        #         return self.ters.plot.plot_spec(index_spec)
-        #     else:
-        #         messagebox.showinfo(
-        #             "Error", "Please enter a positive integer no more than {}".format(lens))
         return self.ters.plot.plot_spec()
 
     @MyWrapper.safe
@@ -673,22 +584,6 @@ class Application(Frame):
             if messagebox.askyesno("Finding spikes", message):
                 self.ters.math.reduce_spike(info_spike)
 
-    # Not finished
-    @MyWrapper.safe
-    def click_read_winspec_info(self):
-        try:
-            spefile = self.ters.io.get_winspec_file()
-            if spefile is None:
-                return None
-            adc, adc_rate, frame, time, time_zone = spefile.get_info_from_spefile()
-        except Exception as ex:
-            error_message_box(ex, "Reading WinSpec file")
-            return None
-
-        message = "ADC: {}\nADC rate: {}\nFrame: {}\nMeasurement time: {}\nTime zone: UTC{:+d}" \
-            .format(adc, adc_rate, frame, time, time_zone)
-        messagebox.showinfo("WinSpec file", message)
-
     @MyWrapper.safe
     def click_interpolate_wavenumber(self):
         scaling = tkinter.simpledialog.askfloat("Messagebox", "Scaling?")
@@ -709,43 +604,6 @@ class Application(Frame):
                 return temp
             else:
                 messagebox.showinfo("Error", "Please enter a positive integer")
-
-    @MyWrapper.safe
-    def click_interpolate_spectra(self):
-        if self.ters.properties.get('pixel_x') == 1:
-            scaling_x = 1
-            scaling_y = self.ask_for_positive_float("Scaling factor?")
-            if scaling_y is None:
-                return None
-        else:
-            scaling_x = self.ask_for_positive_float(
-                "Scaling factor for x axis?")
-            if scaling_x is None:
-                return None
-            scaling_y = self.ask_for_positive_float(
-                "Scaling factor for y axis?")
-            if scaling_y is None:
-                return None
-
-        self.ters.math.interpolate_spectra(scaling_x, scaling_y)
-        self.ters.properties.set(pixel_x=int(self.pixel_x * scaling_x))
-
-    @MyWrapper.safe
-    def click_test1(self):
-        n_components = n_clusters = None
-        try:
-            n_components = self.ask.non_negetive_int("N components?")
-            n_clusters = self.ask.positive_int("N cluster?")
-        except CancelInterrupt:
-            pass
-        # print(self.data.math.cluster.predict(n_components=self.ask.positive_int("N components?"),
-        #                                      n_clusters=self.ask.positive_int("N cluster?")))
-        self.ters.plot.cluster_mapping(n_components, n_clusters)
-
-    @MyWrapper.safe
-    def click_test2(self):
-        self.ters.plot.pca_variance(
-            n_components=self.ask.positive_int('N components?'))
 
     @MyWrapper.safe
     def click_test(self):
@@ -782,22 +640,6 @@ class Application(Frame):
                                method=getattr(self, 'method', None))
         multi_ters.export_all_no_options()
         messagebox.showinfo(title="Message Box", message="Batch convert done.")
-
-    @MyWrapper.safe
-    def click_merge_to_single(self):
-        files = tkinter.filedialog.askopenfilenames()
-        if files == '':
-            return None
-        multi_ters = MultiTERS(file_cal=None,
-                               file_ori=files,
-                               settings=self.settings,
-                               laser_wavelength=getattr(
-                                   self, 'laser_wavelength', None),
-                               method=getattr(self, 'method', None))
-
-        multi_ters.merge_to_one_and_export()
-        messagebox.showinfo(title="Message Box",
-                            message="Batch merge and export done.")
 
     @MyWrapper.safe
     def click_merge_to_one(self):

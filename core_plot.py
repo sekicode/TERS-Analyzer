@@ -24,7 +24,6 @@ matplotlib.use("TkAgg")
 
 class TERS_Plot():
     def __init__(self, repo: Repository, math: TERS_Math, io: TERS_IO, properties: dict, setttings: Setting) -> None:
-        # self.math = math
         self.io = io
         self.arrange = PlotArrange()
         self.repo = repo
@@ -63,9 +62,6 @@ class TERS_Plot():
         else:
             name = filepaths[0].split('/')[-2]
         return name
-
-        # _, path_o = os.path.split(path)
-        # return path_o+'/'+name
 
     def _set_slider(self, val, slider):
         if val < slider.valmin:
@@ -304,17 +300,6 @@ class TERS_Plot():
         button10.on_clicked(add_right)
 
         def report_peaks(event):
-            # index_spec = int(sindex.val) - 1
-            # cut_center = (sindex3.val + sindex2.val) / 2
-            # cut_halfwidth = (sindex3.val - sindex2.val) / 2
-
-            # if cut_halfwidth <= 0:
-            #     return None
-
-            # xydata = xyzdata[index_spec]
-            # data_cut = Math.cut_data(xydata, cut_center, cut_halfwidth)
-            # peak_report = Math.report_highest_peaks(data_cut)
-
             peak_report = Math.report_highest_peaks(xydata_current)
             if not peak_report:
                 peak_report = "No peaks found."
@@ -341,13 +326,6 @@ class TERS_Plot():
         fig, ax = plt.subplots()
         fig.canvas.set_window_title(windows_title)
         self.arrange.adjust_figure_position(fig)
-
-        # x = xyzdata[0, :, 0]
-        # if distance:
-        #     y = np.arange(len(data_lineprofile)-1 *
-        #                   distance, -distance, -distance)
-        # else:
-        #     y = np.arange(len(data_lineprofile), 0, -1)
 
         x, y, data_lineprofile = Math.get_waterfall_xyz(xyzdata, distance)
         z = data_lineprofile
@@ -1171,10 +1149,6 @@ class TERS_Plot():
             last_update = time.time()
             fig.canvas.draw_idle()
 
-        # sindex2.on_changed(update)
-        # sindex3.on_changed(update)
-        # textbox1.on_submit(update)
-        # textbox2.on_submit(update)
         button5.on_clicked(update)
 
         resetax = plt.axes(self.arrange.button1_shape)
@@ -1190,31 +1164,6 @@ class TERS_Plot():
         export_current_ax = plt.axes(self.arrange.button3_shape)
         button2 = pltButton(export_current_ax, 'Export',
                             color=axcolor, hovercolor='0.975')
-        '''
-        def export(event):
-            output = Math.get_cluster_mapping_data(
-                xyzdata, self.properties, n_components, n_clusters)
-            if output is None:
-                return None
-
-            x = np.arange(0, distance * pixel_x, distance).reshape(1, pixel_x)
-            output = np.r_[x, output]
-            pixel_y = int(len(xyzdata) / pixel_x)
-            y = np.arange(distance * pixel_y, -distance, -
-                          distance).reshape(pixel_y + 1, 1)
-            output = np.c_[y, output]
-            output[0][0] = 0
-
-            file = self.io.ask_for_savefile()
-            if file is None:
-                return None
-            try:
-                np.savetxt(file.name, output, delimiter=',')
-            except:
-                messagebox.showinfo("Error", "Cannot save files")
-
-        button2.on_clicked(export)
-        '''
 
         rax = plt.axes(self.arrange.radiobutton1_shape, facecolor=axcolor)
         radio = RadioButtons(rax, ('Rescale on', 'Rescale off'), active=0)
@@ -1308,28 +1257,6 @@ class TERS_Plot():
         export_current_ax = plt.axes(self.arrange.button3_shape)
         button2 = pltButton(export_current_ax, 'Export current',
                             color=axcolor, hovercolor='0.975')
-
-        # def export_current(event):
-        #     index_spec = int(sindex.val) - 1
-        #     cut_center = (sindex3.val + sindex2.val) / 2
-        #     cut_halfwidth = (sindex3.val - sindex2.val) / 2
-
-        #     if cut_halfwidth <= 0:
-        #         return None
-
-        #     xydata = xyzdata[index_spec]
-        #     data_cut = Math.cut_data(xydata, cut_center, cut_halfwidth)
-
-        #     if sindex4.val >= 5:
-        #         window_size = int(sindex4.val / 2) * 2 + 1
-        #         data_smooth = Math.smooth(
-        #             data_cut, window_size, polynomial_order=3)
-        #     else:
-        #         data_smooth = data_cut
-
-        #     self.io.export_spectrum(data_smooth)
-
-        # button2.on_clicked(export_current)
 
         # Export all button
         export_all_ax = plt.axes(self.arrange.button5_shape)

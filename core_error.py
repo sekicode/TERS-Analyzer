@@ -47,7 +47,6 @@ class CustomError():
             try:
                 st = Traceback.extract_stack()
                 a = st[-3]
-                # message_output = "{}, line {} in {} went wrong when calling {}.".format(a[0], a[1], a[2], a[3])
                 message_output = "{}, line {} in {} went wrong.".format(
                     a[0], a[1], a[2])
             except:

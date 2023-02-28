@@ -1,10 +1,19 @@
 ''' core_winspec.py - read SPE files created by WinSpec with Princeton Instruments' cameras. '''
 
-import ctypes, os
-import struct
-import numpy as np
-import logging
+''' Source: https://github.com/antonl/pyWinSpec'''
 
+'''Copyright (c) 2013-2018, Anton Loukianov All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.'''
+
+
+import logging
+import numpy as np
+import struct
+import ctypes
+import os
 __all__ = ['SpeFile', 'print_offsets']
 
 __author__ = "Anton Loukianov"
@@ -19,27 +28,31 @@ spe_byte = ctypes.c_ubyte
 spe_word = ctypes.c_ushort
 spe_dword = ctypes.c_uint
 
-spe_char = ctypes.c_char # 1 byte
-spe_short = ctypes.c_short # 2 bytes
+spe_char = ctypes.c_char  # 1 byte
+spe_short = ctypes.c_short  # 2 bytes
 
 # long is 4 bytes in the manual. It is 8 bytes on my machine
-spe_long = ctypes.c_int # 4 bytes
+spe_long = ctypes.c_int  # 4 bytes
 
-spe_float = ctypes.c_float # 4 bytes
-spe_double = ctypes.c_double # 8 bytes
+spe_float = ctypes.c_float  # 4 bytes
+spe_double = ctypes.c_double  # 8 bytes
+
 
 class ROIinfo(ctypes.Structure):
     pass
 
+
 class AxisCalibration(ctypes.Structure):
     pass
+
 
 class Header(ctypes.Structure):
     pass
 
+
 def print_offsets():
     ''' Print the attribute names, sizes and offsets in the C structure
-    
+
     Assuming that the sizes are correct and add up to an offset of 4100 bytes, 
     everything should add up correctly. This information was taken from the 
     WinSpec 2.6 Spectroscopy Software User Manual version 2.6B, page 251.
@@ -48,7 +61,8 @@ def print_offsets():
     datatype widths. Fix this in winspec.structs file and let me know!
     '''
 
-    import inspect, re
+    import inspect
+    import re
 
     A = Header()
 
@@ -56,11 +70,11 @@ def print_offsets():
         fields = []
 
         print('\n{:30s}[{:4s}]\tsize'.format(repr(i), 'offs'))
-        
-        for name,obj in inspect.getmembers(i):
+
+        for name, obj in inspect.getmembers(i):
             if inspect.isdatadescriptor(obj) and not inspect.ismemberdescriptor(obj) \
-                and not inspect.isgetsetdescriptor(obj):
-                
+                    and not inspect.isgetsetdescriptor(obj):
+
                 fields.append((name, obj))
 
         fields = sorted(fields, key=lambda x: x[1].offset)
@@ -79,15 +93,15 @@ class SpeFile(object):
     a new object if you want to reread the file.
     '''
 
-    # Map between header datatype field and numpy datatype 
-    _datatype_map = {0 : np.float32, 1 : np.int32, 2 : np.int16, 3 : np.uint16}
+    # Map between header datatype field and numpy datatype
+    _datatype_map = {0: np.float32, 1: np.int32, 2: np.int16, 3: np.uint16}
 
     def __init__(self, name):
         ''' Open file `name` to read the header.'''
 
         with open(name, mode='rb') as f:
             self.header = Header()
-            self.path = os.path.realpath(name) 
+            self.path = os.path.realpath(name)
             self._data = None
             self._xaxis = None
             self._yaxis = None
@@ -128,15 +142,17 @@ class SpeFile(object):
 
         # In python 2.7, apparently file and FileIO cannot be used interchangably
         with open(self.path, mode='rb') as f:
-            f.seek(4100) # Skip header (4100 bytes)
+            f.seek(4100)  # Skip header (4100 bytes)
 
             _count = self.header.xdim * self.header.ydim * self.header.NumFrames
-            
-            self._data = np.fromfile(f, dtype=SpeFile._datatype_map[self.header.datatype], count=_count)
+
+            self._data = np.fromfile(
+                f, dtype=SpeFile._datatype_map[self.header.datatype], count=_count)
 
             # Also, apparently the ordering of the data corresponds to how it is stored by the shift register
             # Thus, it appears a little backwards...
-            self._data = self._data.reshape((self.header.NumFrames, self.header.ydim, self.header.xdim))
+            self._data = self._data.reshape(
+                (self.header.NumFrames, self.header.ydim, self.header.xdim))
 
             # Orient the structure so that it is indexed like [NumFrames][x, y]
             self._data = np.rollaxis(self._data, 2, 1)
@@ -146,8 +162,8 @@ class SpeFile(object):
                 pass
             elif any([self.reversed == True, self.adc == '100 KHz']):
                 self._data = self._data[:, ::-1, :]
-                log.debug('flipped data because of nonstandard ADC setting ' +\
-                        'or reversed setting')
+                log.debug('flipped data because of nonstandard ADC setting ' +
+                          'or reversed setting')
 
             return self._data
 
@@ -183,7 +199,6 @@ class SpeFile(object):
         '''
         return self.header.ycalibration.string.decode('ascii')
 
-
     def _make_axes(self):
         '''Construct axes from calibration fields in header file
         '''
@@ -193,9 +208,11 @@ class SpeFile(object):
         xcalib_valid = struct.unpack('?', xcalib.calib_valid)
 
         if xcalib_valid:
-            xcalib_order, = struct.unpack('>B', xcalib.polynom_order) # polynomial order
+            xcalib_order, = struct.unpack(
+                '>B', xcalib.polynom_order)  # polynomial order
             px = xcalib.polynom_coeff[:xcalib_order+1]
-            px = np.array(px[::-1]) # reverse coefficients to use numpy polyval
+            # reverse coefficients to use numpy polyval
+            px = np.array(px[::-1])
             pixels = np.arange(1, self.header.xdim + 1)
             px = np.polyval(px, pixels)
         else:
@@ -204,9 +221,11 @@ class SpeFile(object):
         ycalib_valid = struct.unpack('?', ycalib.calib_valid)
 
         if ycalib_valid:
-            ycalib_order, = struct.unpack('>B', ycalib.polynom_order) # polynomial order
+            ycalib_order, = struct.unpack(
+                '>B', ycalib.polynom_order)  # polynomial order
             py = ycalib.polynom_coeff[:ycalib_order+1]
-            py = np.array(py[::-1]) # reverse coefficients to use numpy polyval
+            # reverse coefficients to use numpy polyval
+            py = np.array(py[::-1])
             pixels = np.arange(1, self.header.ydim + 1)
             py = np.polyval(py, pixels)
         else:
@@ -217,7 +236,6 @@ class SpeFile(object):
 
         return px, py
 
-
     ''' Data recorded in the file, returned as a numpy array. 
     
     The convention for indexes is that the first index is the frame index, followed by x,y region of 
@@ -227,8 +245,8 @@ class SpeFile(object):
 
     def __str__(self):
         return 'SPE File \n\t{:d}x{:d} area, {:d} frames\n\tTaken on {:s}' \
-                .format(self.header.xdim, self.header.ydim, 
-                        self.header.NumFrames, self.header.date.decode())
+            .format(self.header.xdim, self.header.ydim,
+                    self.header.NumFrames, self.header.date.decode())
 
     def __repr__(self):
         return str(self)
@@ -249,7 +267,7 @@ TIMEMAX = 7
 # Region of interest defs
 ROIinfo._pack_ = 1
 ROIinfo._fields_ = [
-    ('startx', spe_word), 
+    ('startx', spe_word),
     ('endx', spe_word),
     ('groupx', spe_word),
     ('starty', spe_word),
@@ -259,19 +277,19 @@ ROIinfo._fields_ = [
 # Calibration structure for X and Y axes
 AxisCalibration._pack_ = 1
 AxisCalibration._fields_ = [
-    ('offset', spe_double), 
+    ('offset', spe_double),
     ('factor', spe_double),
     ('current_unit', spe_char),
     ('reserved1', spe_char),
     ('string', spe_char * 40),
-    ('reserved2', spe_char * 40), 
+    ('reserved2', spe_char * 40),
     ('calib_valid', spe_char),
     ('input_unit', spe_char),
     ('polynom_unit', spe_char),
     ('polynom_order', spe_char),
     ('calib_count', spe_char),
     ('pixel_position', spe_double * 10),
-    ('calib_value', spe_double * 10), 
+    ('calib_value', spe_double * 10),
     ('polynom_coeff', spe_double * 6),
     ('laser_position', spe_double),
     ('reserved3', spe_char),
@@ -293,7 +311,7 @@ Header._fields_ = [
     ('yDimDet', spe_word),
     ('date', spe_char * DATEMAX),
     ('VirtualChipFlag', spe_short),
-    ('Spare_1', spe_char * 2), # Unused data
+    ('Spare_1', spe_char * 2),  # Unused data
     ('noscan', spe_short),
     ('DetTemperature', spe_float),
     ('DetType', spe_short),
@@ -305,8 +323,8 @@ Header._fields_ = [
     ('AbsorbMode', spe_word),
     ('CanDoVirtualChipFlag', spe_short),
     ('ThresholdMinLive', spe_short),
-    ('ThresholdMinVal', spe_float), 
-    ('ThresholdMaxLive', spe_short), 
+    ('ThresholdMinVal', spe_float),
+    ('ThresholdMaxLive', spe_short),
     ('ThresholdMaxVal', spe_float),
     ('SpecAutoSpectroMode', spe_short),
     ('SpecCenterWlNm', spe_float),
@@ -322,7 +340,7 @@ Header._fields_ = [
     ('YPrePixels', spe_short),
     ('YPostPixels', spe_short),
     ('asynen', spe_short),
-    ('datatype', spe_short), # 0 - float, 1 - long, 2 - short, 3 - ushort
+    ('datatype', spe_short),  # 0 - float, 1 - long, 2 - short, 3 - ushort
     ('PulserMode', spe_short),
     ('PulserOnChipAccums', spe_word),
     ('PulserRepeatExp', spe_dword),
@@ -353,46 +371,46 @@ Header._fields_ = [
     ('ADCbitAdjust', spe_word),
     ('gain', spe_word),
     ('Comments', spe_char * 5 * COMMENTMAX),
-    ('geometric', spe_word), # x01 - rotate, x02 - reverse, x04 flip
+    ('geometric', spe_word),  # x01 - rotate, x02 - reverse, x04 flip
     ('xlabel', spe_char * LABELMAX),
     ('cleans', spe_word),
     ('NumSkpPerCln', spe_word),
     ('SpecMirrorPos', spe_short * 2),
-    ('SpecSlitPos', spe_float * 4), 
+    ('SpecSlitPos', spe_float * 4),
     ('AutoCleansActive', spe_short),
     ('UseContCleansInst', spe_short),
-    ('AbsorbStripNum', spe_short), 
+    ('AbsorbStripNum', spe_short),
     ('SpecSlipPosUnits', spe_short),
     ('SpecGrooves', spe_float),
     ('srccmp', spe_short),
-    ('ydim', spe_word), 
+    ('ydim', spe_word),
     ('scramble', spe_short),
-    ('ContinuousCleansFlag', spe_short), 
-    ('ExternalTriggerFlag', spe_short), 
-    ('lnoscan', spe_long), # Longs are 4 bytes  
-    ('lavgexp', spe_long), # 4 bytes
-    ('ReadoutTime', spe_float), 
-    ('TriggeredModeFlag', spe_short), 
-    ('Spare_2', spe_char * 10), 
-    ('sw_version', spe_char * FILEVERMAX), 
+    ('ContinuousCleansFlag', spe_short),
+    ('ExternalTriggerFlag', spe_short),
+    ('lnoscan', spe_long),  # Longs are 4 bytes
+    ('lavgexp', spe_long),  # 4 bytes
+    ('ReadoutTime', spe_float),
+    ('TriggeredModeFlag', spe_short),
+    ('Spare_2', spe_char * 10),
+    ('sw_version', spe_char * FILEVERMAX),
     ('type', spe_short),
-    ('flatFieldApplied', spe_short), 
-    ('Spare_3', spe_char * 16), 
-    ('kin_trig_mode', spe_short), 
-    ('dlabel', spe_char * LABELMAX), 
-    ('Spare_4', spe_char * 436), 
-    ('PulseFileName', spe_char * HDRNAMEMAX), 
+    ('flatFieldApplied', spe_short),
+    ('Spare_3', spe_char * 16),
+    ('kin_trig_mode', spe_short),
+    ('dlabel', spe_char * LABELMAX),
+    ('Spare_4', spe_char * 436),
+    ('PulseFileName', spe_char * HDRNAMEMAX),
     ('AbsorbFileName', spe_char * HDRNAMEMAX),
     ('NumExpRepeats', spe_dword),
     ('NumExpAccums', spe_dword),
-    ('YT_Flag', spe_short), 
+    ('YT_Flag', spe_short),
     ('clkspd_us', spe_float),
     ('HWaccumFlag', spe_short),
     ('StoreSync', spe_short),
     ('BlemishApplied', spe_short),
-    ('CosmicApplied', spe_short), 
+    ('CosmicApplied', spe_short),
     ('CosmicType', spe_short),
-    ('CosmicThreshold', spe_float), 
+    ('CosmicThreshold', spe_float),
     ('NumFrames', spe_long),
     ('MaxIntensity', spe_float),
     ('MinIntensity', spe_float),

@@ -184,27 +184,6 @@ class Math():
             result.append(np.vstack((col1, col2)).T)
         return result
 
-    def interpolate_spectra(xyzdata_input, pixel_x, scaling_x, scaling_y=-1):
-        raise NotFinishedYet
-
-        if scaling_y == -1:
-            scaling_y = scaling_x
-        xyzdata = copy.deepcopy(xyzdata_input)
-        pixel_y = int(len(xyzdata) / pixel_x)
-
-        xyzdata_reorganized = Math.reorganize_data(xyzdata, pixel_x)
-        new = np.zeros(shape=(len(xyzdata_reorganized), int(
-            pixel_x * scaling_x), int(pixel_y * scaling_y)))
-        if pixel_x == 1:
-            for i in range(len(xyzdata_reorganized)):
-                new[i] = Math.interpolate_1d(
-                    xyzdata_reorganized[i, 0], scaling_y)
-        else:
-            for i in range(len(xyzdata_reorganized)):
-                new[i] = Math.interpolate_mapping(
-                    xyzdata_reorganized[i], scaling_x, scaling_y)
-        return Math.reorganize_back_data(xyzdata_input, new)
-
     def find_point(xydata: np.ndarray, center):
         '''Get index from certain value'''
         if not isinstance(xydata, np.ndarray):
@@ -224,19 +203,6 @@ class Math():
         if i > 0 and abs(data[i-1] - center) < abs(data[i] - center):
             i -= 1
         return i
-
-    # def find_edge(xdata, center, halfwidth):
-    #     if halfwidth < 0:
-    #         return None, None
-    #     i = 0
-    #     len_xdata = len(xdata)
-    #     while i < len_xdata - 1 and xdata[i] <= center - halfwidth:
-    #         i += 1
-    #     left_edge = i
-    #     while i < len_xdata - 1 and xdata[i] <= center + halfwidth:
-    #         i += 1
-    #     right_edge = i
-    #     return left_edge, right_edge
 
     def find_edge(xdata, center, halfwidth):
         '''Get left and right indexes from center value and halfwidth'''
@@ -416,17 +382,6 @@ class Math():
 
         return np.flipud(Math.reshape_mapping_data(value_mapping, pixel_x))
 
-    # def get_more_mapping_data(xyzdata: np.ndarray, center: float, halfwidth: float, pixel_x: int, typ: str, method: str):
-    #     if typ == 'Integrate':
-    #         return Math.get_integration_mapping_data(
-    #             xyzdata, center, halfwidth, pixel_x, method)
-    #     elif typ == 'Shift':
-    #         return Math.get_shift_mapping_data(
-    #             xyzdata, center, halfwidth, pixel_x, method)
-    #     elif typ == 'FWHM':
-    #         return Math.get_sigma_mapping_data(
-    #             xyzdata, center, halfwidth, pixel_x, method)
-
     def get_point_mapping_data(xyzdata, center, pixel_x=1):
         lens = len(xyzdata)
         value_mapping = np.zeros(shape=lens)
@@ -507,11 +462,6 @@ class Math():
                 value_mapping[i] = data[highest_index, 0]
 
         elif method == 'smart':
-            #     for i in range(size_z):
-            #         temp = xyzdata[i]
-            #         value_mapping[i] = Math.guassian_fit(
-            #             temp, center, halfwidth)[0]
-
             # elif method == "super smart":
             for i in range(size_z):
                 temp = xyzdata[i]
@@ -805,10 +755,6 @@ class TERS_Math():
     @decorator
     def interpolate(self, scaling=10, inline=True):
         return Math.interpolate(self.repo.data, scaling)
-
-    @decorator
-    def interpolate_spectra(self, pixel_x, scaling_x, scaling_y=-1, inline=True):
-        return Math.interpolate_spectra(self.repo.data, pixel_x, scaling_x, scaling_y)
 
     @decorator
     def cut_data(self, center, halfwidth, inline=True):
