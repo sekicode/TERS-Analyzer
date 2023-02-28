@@ -18,8 +18,6 @@ class CsvFormatter(logging.Formatter):
 
     def format(self, record):
         dt = datetime.datetime.now()
-        # self.writer.writerow([dt.strftime('%Y-%m-%d'), dt.strftime('%H:%M:%S'),
-        #                       record.levelname, record.name,  record.module, record.msg])
         self.writer.writerow(
             [dt.strftime('%Y-%m-%d'), dt.strftime('%H:%M:%S'), record.module, record.msg])
         data = self.output.getvalue()
@@ -41,17 +39,14 @@ def get_logger():
     logging.root.handlers[0].setFormatter(CsvFormatter())
 
     # Logs export to concole
-    chlr = logging.StreamHandler()  # 输出到控制台的handler
-    chlr.setLevel('DEBUG')  # 也可以不设置，不设置就默认用logger的level
+    chlr = logging.StreamHandler()
+    chlr.setLevel('DEBUG')
     logger.addHandler(chlr)
 
     # Set concole export format
     format_concole = logging.Formatter('[%(levelname)s] %(message)s')
     chlr.setFormatter(format_concole)
 
-    # filename = "{}_log.csv".format(datetime.date.today())
-    # fhlr = logging.FileHandler(filename)  # 输出到文件的handler
-    # logger.addHandler(fhlr)
     return logger
 
 
