@@ -1,6 +1,6 @@
-from core_repository import Repository
-from core_TERS import TERS
-from core_setting import Setting
+from src.utils.core_repository import Repository
+from src.ters.core_TERS import TERS
+from src.utils.core_setting import Setting
 
 
 class MultiTERS():

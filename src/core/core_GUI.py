@@ -9,13 +9,12 @@ from tkinter.constants import DISABLED, LEFT, NORMAL, RIGHT, TOP
 
 import numpy as np
 
-from core_Ask import Ask
-from core_cluster import MyCluster
-from core_error import CancelInterrupt, error_message_box
-from core_multi_ters import MultiTERS
-from core_setting import Setting
-from core_TERS import TERS
-from core_wrapper import MyWrapper
+from src.core.core_Ask import Ask
+from src.utils.core_error import CancelInterrupt, error_message_box
+from src.ters.core_multi_ters import MultiTERS
+from src.utils.core_setting import Setting
+from src.ters.core_TERS import TERS
+from src.core.core_wrapper import MyWrapper
 
 Version = '3.1.2.1'
 
@@ -224,11 +223,6 @@ class Application(Frame):
                                width=self.width_button,
                                height=self.height_button,
                                text='About', command=self.click_show_about)
-
-        self.alertButton99 = Button(self,
-                                    width=self.width_button,
-                                    height=self.height_button,
-                                    text='Test', command=self.click_test)
 
         self.buttons_disabled = [self.Button26, self.Button27, self.Button29, self.Button14,
                                  self.Button15, self.Button21, self.Button31, self.Button22,
@@ -604,10 +598,6 @@ class Application(Frame):
                 return temp
             else:
                 messagebox.showinfo("Error", "Please enter a positive integer")
-
-    @MyWrapper.safe
-    def click_test(self):
-        MyCluster().dtw_clustering(self.ters.data)
 
     @MyWrapper.safe
     def click_export_file(self):

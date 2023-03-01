@@ -1,7 +1,7 @@
 import numpy as np
 
-from core_math import Math
-from core_winspec import SpeFile
+from src.ters.core_math import Math
+from src.ters.core_winspec import SpeFile
 
 
 class MySpeFile(SpeFile):

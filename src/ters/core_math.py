@@ -8,9 +8,8 @@ from scipy import integrate
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks, savgol_filter
 
-from core_cluster import MyCluster
-from core_repository import Repository
-from core_winspec import SpeFile
+from src.utils.core_repository import Repository
+from src.ters.core_winspec import SpeFile
 
 
 class NotFinishedYet(Exception):
@@ -639,20 +638,6 @@ class Math():
         for item in data_new:
             data_old.append(item)
 
-    def get_cluster_mapping_data(data, pixel_x, n_components=10, n_clusters=3):
-        data = copy.deepcopy(data)
-        cluster = MyCluster()
-        pca_result = cluster.do_pca(data, n_components)
-        value_mapping = cluster.kmeans(pca_result, n_clusters)
-
-        return np.flipud(Math.reshape_mapping_data(value_mapping, pixel_x))
-
-    def get_pca_variance_ratio(data, n_components=10):
-        data = copy.deepcopy(data)
-        cluster = MyCluster()
-        cluster.do_pca(n_components)
-        return cluster.pca_variance_ratio_
-
     def delete_spectra(data, index):
         data = copy.deepcopy(data)
         return np.delete(data, index, axis=0)
@@ -722,7 +707,6 @@ class TERS_Math():
     def __init__(self, repo: Repository, properties: dict) -> None:
         # self.repo.data = data
         self.properties = properties
-        self.cluster = MyCluster()
         self.repo = repo
 
     @property

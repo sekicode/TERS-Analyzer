@@ -1,6 +1,6 @@
 from inspect import Traceback
 import tkinter.messagebox as messagebox
-from core_logger import logger, silent_logger
+from src.utils.core_logger import logger, silent_logger
 
 
 def error_message_box(error=None, method=''):

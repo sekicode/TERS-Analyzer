@@ -1,5 +1,5 @@
-from core_GUI import Application, Version
-from core_error import error_message_box
+from src.core.core_GUI import Application, Version
+from src.utils.core_error import error_message_box
 
 
 def main():

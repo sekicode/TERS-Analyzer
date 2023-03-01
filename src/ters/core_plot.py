@@ -11,13 +11,13 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.widgets import Button as pltButton
 from matplotlib.widgets import RadioButtons, Slider, TextBox
 
-from core_Ask import Ask
-from core_error import CancelInterrupt, error_message_box
-from core_IO import TERS_IO
-from core_math import Math, TERS_Math
-from core_plot_arrange import PlotArrange
-from core_repository import Repository
-from core_setting import Setting
+from src.core.core_Ask import Ask
+from src.utils.core_error import CancelInterrupt, error_message_box
+from src.utils.core_IO import TERS_IO
+from src.ters.core_math import Math, TERS_Math
+from src.ters.core_plot_arrange import PlotArrange
+from src.utils.core_repository import Repository
+from src.utils.core_setting import Setting
 
 matplotlib.use("TkAgg")
 
@@ -101,7 +101,7 @@ class TERS_Plot():
 
         lens = len(xyzdata)
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position()
         xdata = xyzdata[index, :, 0]
         ydata = xyzdata[index, :, 1]
@@ -324,7 +324,7 @@ class TERS_Plot():
         # data_lineprofile = Math.get_waterfall_data(xyzdata)
 
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position(fig)
 
         x, y, data_lineprofile = Math.get_waterfall_xyz(xyzdata, distance)
@@ -479,7 +479,7 @@ class TERS_Plot():
         center = self._check_center(center)
 
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position()
         title = plt.title('Point Mapping based on {:.1f} cm-1'.format(center))
 
@@ -601,7 +601,7 @@ class TERS_Plot():
         center = self._check_center(center)
 
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position()
         title = plt.title('Point Mapping based on {:.1f} cm-1'.format(center))
 
@@ -705,7 +705,7 @@ class TERS_Plot():
             xyzdata, center, halfwidth, pixel_x, method='Peak finding & Gaussian Fit')
 
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position()
         title = plt.title(
             'Integration Mapping from {:.1f} to {:.1f} cm-1'.format(center-halfwidth, center+halfwidth))
@@ -891,7 +891,7 @@ class TERS_Plot():
             xyzdata, center, halfwidth, pixel_x, method='Peak finding & Gaussian Fit')
 
         fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
+        fig.canvas.manager.set_window_title(windows_title)
         self.arrange.adjust_figure_position()
         title = plt.title(
             'Integration Mapping from {:.1f} to {:.1f} cm-1'.format(center-halfwidth, center+halfwidth))
@@ -1064,241 +1064,3 @@ class TERS_Plot():
 
         return Math.get_integration_mapping_data(xyzdata, center, halfwidth, pixel_x, method='Peak finding & Gaussian Fit')
 
-    def cluster_mapping(self, n_component=2, n_cluster=2, **kargs):
-        '''Not done yet'''
-        pixel_x = self._get_pixel_x(**kargs)
-        color = self._get_color(**kargs)
-        distance = self._get_distance(**kargs)
-        windows_title = self._get_windows_title()
-
-        if n_component is None:
-            n_component = 2
-        if n_cluster is None:
-            n_cluster = 2
-
-        xyzdata = self._get_data()
-        matrix_mapping = Math.get_cluster_mapping_data(
-            xyzdata, pixel_x, n_components=n_component, n_clusters=n_cluster)
-
-        fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
-        self.arrange.adjust_figure_position()
-        title = plt.title('Cluster Mapping')
-
-        lens = len(xyzdata)
-        pixel_y = int(lens / pixel_x)
-        x = np.arange(0, distance * (pixel_x + 1), distance)
-        y = np.arange(distance * pixel_y, -distance, -distance)
-        h = plt.pcolormesh(x, y, matrix_mapping, cmap=color)
-        self.arrange.map_scale(matrix_mapping, h)
-
-        plt.colorbar(h, label="Intensity")
-        plt.xlabel("X (nm)")
-        plt.ylabel("Y (nm)")
-
-        axcolor = 'lightgoldenrodyellow'
-
-        xmin = xyzdata[0, 0, 0] + 1
-        xmax = xyzdata[0, -1, 0] - 1
-
-        # Cut scale
-        x_left_edge = xyzdata[0, 0, 0] + 1
-        x_right_edge = xyzdata[0, -1, 0] - 1
-
-        resetax5 = plt.axes(self.arrange.button6_shape)
-        button5 = pltButton(resetax5, 'Update',
-                            color=axcolor, hovercolor='0.975')
-
-        axbox1 = plt.axes(self.arrange.textbox1_shape)     # Textbox location
-        textbox1 = TextBox(axbox1, 'N component:',
-                           initial=n_component)   # Textbox default text
-
-        axbox2 = plt.axes(self.arrange.textbox2_shape)     # Textbox location
-        textbox2 = TextBox(axbox2, 'N cluster:',
-                           initial=n_cluster)   # Textbox default text
-
-        axindex2 = plt.axes(self.arrange.slinder3_shape, facecolor=axcolor)
-        sindex2 = Slider(axindex2, 'Cut left', x_left_edge,
-                         x_right_edge, valinit=x_left_edge)
-        axindex3 = plt.axes(self.arrange.slinder4_shape, facecolor=axcolor)
-        sindex3 = Slider(axindex3, 'Cut right', x_left_edge,
-                         x_right_edge, valinit=x_right_edge)
-
-        n_component = int(textbox1.text)
-        n_cluster = int(textbox2.text)
-        last_update = None
-        update_period = 1
-
-        def update(val):
-            nonlocal n_component, n_cluster, last_update
-            n_component = int(textbox1.text)
-            n_cluster = int(textbox2.text)
-            # if last_update and time.time() - last_update < update_period:
-            #     return None
-
-            data_cut = Math.cut_data(
-                xyzdata, *Math.find_center(left_val=sindex2.val, right_val=sindex3.val))
-            matrix_mapping = Math.get_cluster_mapping_data(
-                data_cut, pixel_x, n_component, n_cluster)
-            h.set_array(matrix_mapping)
-            if radio.value_selected == 'Rescale on':
-                self.arrange.map_scale(matrix_mapping, h)
-
-            # plt.setp(
-            #     title, text='Point Mapping based on {:.1f} cm-1'.format(center))
-            last_update = time.time()
-            fig.canvas.draw_idle()
-
-        button5.on_clicked(update)
-
-        resetax = plt.axes(self.arrange.button1_shape)
-        button = pltButton(resetax, 'Reset', color=axcolor, hovercolor='0.975')
-
-        def reset(event):
-            sindex2.reset()
-            sindex3.reset()
-
-        button.on_clicked(reset)
-
-        # Export current button
-        export_current_ax = plt.axes(self.arrange.button3_shape)
-        button2 = pltButton(export_current_ax, 'Export',
-                            color=axcolor, hovercolor='0.975')
-
-        rax = plt.axes(self.arrange.radiobutton1_shape, facecolor=axcolor)
-        radio = RadioButtons(rax, ('Rescale on', 'Rescale off'), active=0)
-
-        plt.show()
-
-    def pca_variance(self, n_components=None, **kargs):
-        '''Not done yet'''
-        xyzdata = self._get_data()
-        windows_title = self._get_windows_title()
-        lens = len(xyzdata)
-        import cmath
-        if n_components is None:
-            n_components = int(cmath.sqrt(lens))
-
-        fig, ax = plt.subplots()
-        fig.canvas.set_window_title(windows_title)
-        self.arrange.adjust_figure_position()
-
-        Y = Math.get_pca_variance_ratio(xyzdata, n_components)
-        l, = plt.plot(Y, lw=2, color='red')
-        plt.xlabel("Wavenumber (cm-1)")
-        plt.ylabel("Intensity")
-        title = plt.title("Spectrum")
-
-        axcolor = 'lightgoldenrodyellow'
-
-        # Plot index scale
-        axindex = plt.axes(self.arrange.slinder1_shape, facecolor=axcolor)
-        sindex = Slider(axindex, 'PCA Components', 2, 10, valinit=n_components)
-
-        # Cut scale
-        x_left_edge = xyzdata[0, 0, 0] + 1
-        x_right_edge = xyzdata[0, -1, 0] - 1
-
-        axindex2 = plt.axes(self.arrange.slinder2_shape, facecolor=axcolor)
-        sindex2 = Slider(axindex2, 'Left edge', x_left_edge,
-                         x_right_edge, valinit=x_left_edge)
-        axindex3 = plt.axes(self.arrange.slinder3_shape, facecolor=axcolor)
-        sindex3 = Slider(axindex3, 'Right edge', x_left_edge,
-                         x_right_edge, valinit=x_right_edge)
-        axindex4 = plt.axes(self.arrange.slinder4_shape, facecolor=axcolor)
-        sindex4 = Slider(axindex4, 'Smooth', 0, 50, valinit=0)
-
-        def update(val):
-            n_components = int(sindex.val)
-
-            cut_center = (sindex3.val + sindex2.val) / 2
-            cut_halfwidth = (sindex3.val - sindex2.val) / 2
-
-            data_cut = Math.cut_data(
-                xyzdata, cut_center, cut_halfwidth)
-
-            if sindex4.val >= 5:
-                window_size = sindex4.val
-                data_smooth = Math.smooth(
-                    data_cut, window_size, polynomial_order=3)
-            else:
-                data_smooth = data_cut
-
-            Y = Math.get_pca_variance_ratio(
-                data_smooth, n_components)
-            X = np.linspace(1, len(Y), len(Y))
-            l.set_xdata(X)
-            l.set_ydata(Y)
-
-            if radio.value_selected == 'Rescale on':
-                self.arrange.ax_scale(X, Y, ax)
-
-            fig.canvas.draw_idle()
-
-        sindex.on_changed(update)
-        sindex2.on_changed(update)
-        sindex3.on_changed(update)
-        sindex4.on_changed(update)
-
-        # Reset button
-        resetax = plt.axes(self.arrange.button1_shape)
-        button = pltButton(resetax, 'Reset', color=axcolor, hovercolor='0.975')
-
-        def reset(event):
-            sindex.reset()
-            sindex2.reset()
-            sindex3.reset()
-            sindex4.reset()
-
-        button.on_clicked(reset)
-
-        # Export current button
-
-        export_current_ax = plt.axes(self.arrange.button3_shape)
-        button2 = pltButton(export_current_ax, 'Export current',
-                            color=axcolor, hovercolor='0.975')
-
-        # Export all button
-        export_all_ax = plt.axes(self.arrange.button5_shape)
-        button3 = pltButton(export_all_ax, 'Export all',
-                            color=axcolor, hovercolor='0.975')
-
-        def export_all(event):
-            index_spec = int(sindex.val) - 1
-            cut_center = (sindex3.val + sindex2.val) / 2
-            cut_halfwidth = (sindex3.val - sindex2.val) / 2
-
-            if cut_halfwidth <= 0:
-                return None
-
-            data_cut = Math.cut_data(xyzdata, cut_center, cut_halfwidth)
-
-            if sindex4.val >= 5:
-                window_size = sindex4.val
-                data_smooth = Math.smooth(
-                    data_cut, window_size, polynomial_order=3)
-            else:
-                data_smooth = data_cut
-
-            self.io.export_files(data_smooth, prefix=self._get_prefix(**kargs))
-
-        button3.on_clicked(export_all)
-
-        ax4 = plt.axes(self.arrange.button7_shape)
-        button4 = pltButton(ax4, 'Change title',
-                            color=axcolor, hovercolor='0.975')
-
-        def change_title(event):
-            try:
-                plt.setp(title, text=Ask().string("Title ?"))
-            except CancelInterrupt:
-                return None
-            fig.canvas.draw_idle()
-
-        button4.on_clicked(change_title)
-
-        # Rescale radiobuttons
-        rax = plt.axes(self.arrange.radiobutton1_shape, facecolor=axcolor)
-        radio = RadioButtons(rax, ('Rescale on', 'Rescale off'), active=0)
-
-        plt.show()
