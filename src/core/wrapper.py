@@ -1,5 +1,5 @@
-from src.utils.core_error import CustomError
-from src.utils.core_logger import logger
+from src.utils.error import CustomError
+from src.utils.logger import logger
 
 
 class MyWrapper():

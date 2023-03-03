@@ -1,13 +1,13 @@
 
 from typing import Type
-from src.utils.core_setting import Setting
+from src.utils.setting import Setting
 import numpy as np
 
-from src.utils.core_IO import TERS_IO
-from src.ters.core_math import Math, TERS_Math
-from src.ters.core_my_winspec import MySpeFile
-from src.ters.core_plot import TERS_Plot
-from src.utils.core_repository import Repository
+from src.utils.IO import TERS_IO
+from src.ters.math import Math, TERS_Math
+from src.ters.my_winspec import MySpeFile
+from src.ters.plot import TERS_Plot
+from src.utils.repository import Repository
 import os
 
 

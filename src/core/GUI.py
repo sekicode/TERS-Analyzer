@@ -9,12 +9,12 @@ from tkinter.constants import DISABLED, LEFT, NORMAL, RIGHT, TOP
 
 import numpy as np
 
-from src.core.core_Ask import Ask
-from src.utils.core_error import CancelInterrupt, error_message_box
-from src.ters.core_multi_ters import MultiTERS
-from src.utils.core_setting import Setting
-from src.ters.core_TERS import TERS
-from src.core.core_wrapper import MyWrapper
+from src.core.Ask import Ask
+from src.utils.error import CancelInterrupt, error_message_box
+from src.ters.multi_ters import MultiTERS
+from src.utils.setting import Setting
+from src.ters.TERS import TERS
+from src.core.wrapper import MyWrapper
 
 Version = '3.1.2.1'
 

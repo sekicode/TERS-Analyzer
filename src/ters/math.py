@@ -8,8 +8,8 @@ from scipy import integrate
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks, savgol_filter
 
-from src.utils.core_repository import Repository
-from src.ters.core_winspec import SpeFile
+from src.utils.repository import Repository
+from src.ters.winspec import SpeFile
 
 
 class NotFinishedYet(Exception):

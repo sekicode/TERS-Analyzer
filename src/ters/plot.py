@@ -11,13 +11,13 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.widgets import Button as pltButton
 from matplotlib.widgets import RadioButtons, Slider, TextBox
 
-from src.core.core_Ask import Ask
-from src.utils.core_error import CancelInterrupt, error_message_box
-from src.utils.core_IO import TERS_IO
-from src.ters.core_math import Math, TERS_Math
-from src.ters.core_plot_arrange import PlotArrange
-from src.utils.core_repository import Repository
-from src.utils.core_setting import Setting
+from src.core.Ask import Ask
+from src.utils.error import CancelInterrupt, error_message_box
+from src.utils.IO import TERS_IO
+from src.ters.math import Math, TERS_Math
+from src.ters.plot_arrange import PlotArrange
+from src.utils.repository import Repository
+from src.utils.setting import Setting
 
 matplotlib.use("TkAgg")
 

@@ -1,4 +1,4 @@
-from src.ters.core_my_winspec import MySpeFile
+from src.ters.my_winspec import MySpeFile
 import numpy as np
 import tkinter.filedialog
 import tkinter.messagebox as messagebox

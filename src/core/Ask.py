@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 
-from src.utils.core_error import CancelInterrupt
+from src.utils.error import CancelInterrupt
 
 
 class Ask():
