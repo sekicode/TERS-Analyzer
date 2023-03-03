@@ -315,6 +315,8 @@ class TERS_Plot():
         plt.show()
 
     def waterfall(self, **kargs):
+        # known bug: plot not working when x pixel or y pixel is 1
+
         pixel_x = self._get_pixel_x(**kargs)
         color = self._get_color(**kargs)
         distance = self._get_distance(**kargs)
