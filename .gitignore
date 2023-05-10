@@ -1,7 +1,6 @@
 dic/
 build/
 /*.zip
-/*.txt
 /*.npz
 /Tools for Compile
 /Backup
